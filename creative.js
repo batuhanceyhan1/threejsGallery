@@ -138,8 +138,7 @@ function onMouseMove(event) {
   const intersections = raycaster.intersectObjects(scene.children, true);
   if (intersections.length > 0) {
     const selectedObject = intersections[0].object;
-    checkHighlightObj(selectedObject);
-    updateDivPosition(selectedObject);
+
   }
 }
 

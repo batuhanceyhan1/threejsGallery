@@ -1,0 +1,39 @@
+@font-face {
+  font-family: 'Enso';
+  src: local('Enso'), url(fonts/enso.ttf), format('ttf');
+}
+
+body {
+  background-color: black;
+  margin: 0;
+  font-family: 'Enso';
+}
+
+#heading {
+  position: fixed;
+  width: 100%;
+}
+
+.border {
+  background: linear-gradient(0deg,rgb(0, 92, 185),50%,rgb(43,172,216));
+  height: 5px;
+  width: 100vmax;
+  margin-top: 5px;
+}
+
+
+#progress-container {
+  position:absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image:linear-gradient(0deg,rgb(0, 92, 185),50%,rgb(43,172,216));
+  z-index: 1;
+}
+
+#progress {
+  font-size: 3em;
+  color: white;
+}
