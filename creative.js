@@ -6,9 +6,12 @@ import { RenderPass } from './node_modules/three/examples/jsm/postprocessing/Ren
 import { UnrealBloomPass } from './node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { Lensflare, LensflareElement } from './node_modules/three/examples/jsm/objects/Lensflare.js';
 import { OutlinePass } from './node_modules/three/examples/jsm/postprocessing/OutlinePass.js';
+import { RGBELoader, ThreeMFLoader } from 'three/examples/jsm/Addons.js';
 
 //Variables
 const raycaster = new THREE.Raycaster();
+
+const imagepath = './public/textures/golden_bay_2k.hdr'
 
 let mixer;
 let audioLoader = new THREE.AudioLoader();
@@ -17,62 +20,73 @@ let developianSoundobject;
 let GallerySound;
 let mesh;
 
+let hdrTexture = new RGBELoader().load(imagepath);
+
+let skySphereGeometry = new THREE.SphereGeometry(300, 60, 60);
+let skySphereMaterial = new THREE.MeshPhongMaterial({
+  map: hdrTexture
+});
+
+skySphereMaterial.side = THREE.BackSide;
+let skySphereMesh = new THREE.Mesh(skySphereGeometry,skySphereMaterial);
 
 //Renderer Setup
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor("rgb(0, 0, 0)");
+renderer.setClearColor("rgb(237, 196, 135)");
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-const fogColor = new THREE.Color("rgb(40, 20,0)");
+const fogColor = new THREE.Color("rgb(237, 196, 135)");
 
-//document.body.appendChild(renderer.domElement);
-document.getElementById("heading").appendChild(renderer.domElement);
+document.body.appendChild(renderer.domElement);
+//document.getElementById("heading").appendChild(renderer.domElement);
 
 // Scene Setup
 const scene = new THREE.Scene();
 const near = 5;
-const far = 25;
+const far = 1500;
 scene.fog = new THREE.Fog(fogColor, near, far);
-const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 1000);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
 camera.position.set(10, 5, 0.1);
 
 //Composer Setup
 const renderPass = new RenderPass(scene, camera);
 const effectComposer = new EffectComposer(renderer);
 effectComposer.addPass(renderPass);
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.34, 1, 0.1);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.05, 0.1, 0.1);
 effectComposer.addPass(bloomPass);
+
 const outlinepass_ = new OutlinePass(
   new THREE.Vector2(window.innerWidth, window.innerHeight), //resolution parameter
   scene,
   camera
 );
-effectComposer.addPass(outlinepass_);
-const ambientLightOffice = new THREE.AmbientLight('white', 1);
-ambientLightOffice.position.set(3.5, 4, 1);
-scene.add(ambientLightOffice);
 
-const pointLightOffice = new THREE.PointLight('rgb(209, 197, 171)', 20, 10, 1.5);
-pointLightOffice.position.set(3, 4, 1.5);
-pointLightOffice.castShadow = false;
-pointLightOffice.shadow.bias = -0.01;
-scene.add(pointLightOffice);
+effectComposer.addPass(outlinepass_);
+
+const ambLight = new THREE.AmbientLight('237, 196, 135', 2);
+ambLight.position.set(3.5, 4, 1);
+scene.add(ambLight);
+scene.add(skySphereMesh);
+const dirLight = new THREE.DirectionalLight('rgb(209, 197, 171)', 3, 5, 1.5);
+dirLight.position.set(3, 4, 1.5);
+dirLight.castShadow = false;
+dirLight.shadow.bias = -0.01;
+scene.add(dirLight);
 
 // Orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.enablePan = false;
-controls.minDistance = 1.5;
-controls.maxDistance = 15;
+controls.enablePan = true;
+controls.minDistance = 50;
+controls.maxDistance = 70;
 controls.minPolarAngle = 1;
 controls.maxPolarAngle = 1.5;
-controls.minAzimuthAngle = -Math.PI / 360; // -45 derece
-controls.maxAzimuthAngle = Math.PI / 1.8; // 45 derece
+
 controls.autoRotate = false;
-controls.target = new THREE.Vector3(0, 1, 0);
+controls.target = new THREE.Vector3(100, 1, 0);
 controls.enabled = true;
 controls.update();
 new THREE.Color("rgb(255, 0, 0)");
