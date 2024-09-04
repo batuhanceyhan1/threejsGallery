@@ -28,7 +28,7 @@ let skySphereMaterial = new THREE.MeshPhongMaterial({
 });
 
 skySphereMaterial.side = THREE.BackSide;
-let skySphereMesh = new THREE.Mesh(skySphereGeometry,skySphereMaterial);
+let skySphereMesh = new THREE.Mesh(skySphereGeometry, skySphereMaterial);
 
 //Renderer Setup
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -38,7 +38,7 @@ renderer.setClearColor("rgb(237, 196, 135)");
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-const fogColor = new THREE.Color("rgb(237, 196, 135)");
+const fogColor = new THREE.Color("rgb(20,20,20)");
 
 document.body.appendChild(renderer.domElement);
 //document.getElementById("heading").appendChild(renderer.domElement);
@@ -46,10 +46,11 @@ document.body.appendChild(renderer.domElement);
 // Scene Setup
 const scene = new THREE.Scene();
 const near = 5;
-const far = 1500;
+const far = 250;
 scene.fog = new THREE.Fog(fogColor, near, far);
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(10, 5, 0.1);
+const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+camera.position.set(10, 15, 0.1);
+camera.rotation.set(-0.3, 0, 0);
 
 //Composer Setup
 const renderPass = new RenderPass(scene, camera);
@@ -58,6 +59,7 @@ effectComposer.addPass(renderPass);
 const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.05, 0.1, 0.1);
 effectComposer.addPass(bloomPass);
 
+/*
 const outlinepass_ = new OutlinePass(
   new THREE.Vector2(window.innerWidth, window.innerHeight), //resolution parameter
   scene,
@@ -65,16 +67,41 @@ const outlinepass_ = new OutlinePass(
 );
 
 effectComposer.addPass(outlinepass_);
+*/
 
-const ambLight = new THREE.AmbientLight('237, 196, 135', 2);
+
+// SpotLights Setup
+
+/*
+const geometry = new THREE.SphereGeometry(1, 32, 32);
+const material = new THREE.MeshBasicMaterial({ color: 0x0077ff });
+const soundObject = new THREE.Mesh(geometry, material);
+scene.add(soundObject);
+soundObject.position.set(1, 25, 100); // x, y, z koordinatlarını belirleyin
+*/
+const pointLight1 = new THREE.PointLight('rgb(209, 197, 171)', 500, 100, 1.5);
+pointLight1.position.set(0, 25, 0);
+pointLight1.castShadow = true;
+pointLight1.shadow.bias = -0.01;
+scene.add(pointLight1);
+
+const pointLight3 = new THREE.PointLight('rgb(209, 197, 171)', 500, 100, 1.5);
+pointLight3.position.set(0, 25, 75);
+pointLight3.castShadow = true;
+pointLight3.shadow.bias = -0.01;
+scene.add(pointLight3);
+
+
+const pointLight5 = new THREE.PointLight('rgb(209, 197, 171)', 500, 100, 1.5);
+pointLight5.position.set(0, 25, -50);
+pointLight5.castShadow = true;
+pointLight5.shadow.bias = -0.01;
+scene.add(pointLight5);
+
+const ambLight = new THREE.AmbientLight('white', .5);
 ambLight.position.set(3.5, 4, 1);
 scene.add(ambLight);
 scene.add(skySphereMesh);
-const dirLight = new THREE.DirectionalLight('rgb(209, 197, 171)', 3, 5, 1.5);
-dirLight.position.set(3, 4, 1.5);
-dirLight.castShadow = false;
-dirLight.shadow.bias = -0.01;
-scene.add(dirLight);
 
 // Orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -86,8 +113,8 @@ controls.minPolarAngle = 1;
 controls.maxPolarAngle = 1.5;
 
 controls.autoRotate = false;
-controls.target = new THREE.Vector3(100, 1, 0);
-controls.enabled = true;
+//controls.target = new THREE.Vector3(camera.position.x, 1, 0);
+controls.enabled = false;
 controls.update();
 new THREE.Color("rgb(255, 0, 0)");
 
@@ -104,29 +131,12 @@ loader.load('scene.gltf', gltf => {
     if (child.isMesh) {
       child.castShadow = true;
       child.receiveShadow = true;
-      if (child.name === "Spotlight_") {
-        spotlightMesh = child;
-        spotlightMesh.material.emissive = new THREE.Color('black');
-      }
-      else if (child.name === "Macbook") {
-        notebookMesh = child;
-        notebookMesh.material.emissive = new THREE.Color('black');
-        notebookMesh.material.color = new THREE.Color('black');
-      }
-      else if (child.name === "resim_") {
-        photo = child;
-        photo.material.emissive = new THREE.Color('black');
-      }
-      else if (child.name === "CeilLight_") {
-        ceilLight = child;
-      }
     }
   });
 
   mesh.position.set(0, 0, 0);
   scene.add(mesh);
-  //LensFlare Texture load after model imported
-  //lensFlare.addElement(new LensflareElement(textureFlare0, 512, 0));
+
   document.getElementById('progress-container').style.display = 'none';
 }, (xhr) => {
   console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
@@ -182,6 +192,18 @@ function loadSoundFromPath(path, soundVolume, SoundDistance, mainSound, SoundObj
   });
 }
 
+window.addEventListener('wheel', (event) => {
+
+
+  // Scroll up için deltaY negatif, scroll down için pozitif olur
+  const scrollSpeed = 0.001; // Scroll hareketinin hızını ayarlayın
+  camera.position.z += event.deltaY * scrollSpeed * 7;
+  camera.position.z = Math.round(camera.position.z);
+  camera.position.z = THREE.MathUtils.clamp(camera.position.z, -75, 105);
+  console.log(camera.position.z + " z pos");
+
+});
+
 const clock = new THREE.Clock();
 function animate() {
 
@@ -191,7 +213,7 @@ function animate() {
   if (mixer != null) {
     mixer.update(clock.getDelta());
   }
-  controls.update();
+  //controls.update();
   effectComposer.render(scene, camera);
 
 }
