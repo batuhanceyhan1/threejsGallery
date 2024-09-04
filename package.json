@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@react-three/drei": "^9.107.0",
+    "post": "^0.0.1",
+    "postprocessing": "^6.35.4",
+    "processing": "^0.2.0",
+    "vite": "^5.2.13"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  }
+}
